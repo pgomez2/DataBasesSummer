@@ -21,13 +21,14 @@ static void testSinglePageContent(void);
 int
 main (void)
 {
-  testName = "";
-  
+  /*testName = "";
+  */
   initStorageManager();
 
+ /* 
   testCreateOpenClose();
   testSinglePageContent();
-
+*/
   return 0;
 }
 

@@ -1,8 +1,14 @@
-#include "storage_mgr.c"
+#include "storage_mgr.h"
 
 
 /* manipulating page files */
-extern void initStorageManager (void){return RC_OK;}
+extern void initStorageManager (void){
+
+    printf("initStorageManager has succesfully iniciated");
+
+    return RC_OK;}
+
+    
 extern RC createPageFile (char *fileName){return RC_OK;}
 extern RC openPageFile (char *fileName, SM_FileHandle *fHandle){return RC_OK;}
 extern RC closePageFile (SM_FileHandle *fHandle){return RC_OK;}
