@@ -43,9 +43,9 @@ testCreateOpenClose(void)
   testName = "test create open and close methods";
 
   TEST_CHECK(createPageFile (TESTPF));
-  /*
-  TEST_CHECK(openPageFile (TESTPF, &fh));
   
+  TEST_CHECK(openPageFile (TESTPF, &fh));
+  /*
   ASSERT_TRUE(strcmp(fh.fileName, TESTPF) == 0, "filename correct");
   ASSERT_TRUE((fh.totalNumPages == 1), "expect 1 page in new file");
   ASSERT_TRUE((fh.curPagePos == 0), "freshly opened file's page position should be 0");

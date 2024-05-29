@@ -19,11 +19,11 @@ typedef char* SM_PageHandle;
  *                    interface                             *
  ************************************************************/
 /* manipulating page files */
-extern void initStorageManager (void);
-extern RC createPageFile (char *fileName);
+extern void initStorageManager (void); //made
+extern RC createPageFile (char *fileName); //made
 extern RC openPageFile (char *fileName, SM_FileHandle *fHandle);
 extern RC closePageFile (SM_FileHandle *fHandle);
-extern RC destroyPageFile (char *fileName);
+extern RC destroyPageFile (char *fileName); //made 
 
 /* reading blocks from disc */
 extern RC readBlock (int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage);
