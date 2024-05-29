@@ -6,13 +6,13 @@
 extern void initStorageManager (void){
 
     // we this print it is ensure the Storage Manager is inicializated
-    printf("initStorageManager has succesfully iniciated");
+    printf("initStorageManager has succesfully iniciated\n");
 
     }
 
 
 extern RC createPageFile (char *fileName){
-    
+    printf("The fileName is %s\n", fileName);
     //create a file, use the name that come from the argument of the function
     //and store the direction of the file in a pointer called file
     FILE *file = fopen(fileName, "w+"); 
@@ -38,7 +38,9 @@ extern RC openPageFile (char *fileName, SM_FileHandle *fHandle){
     FILE *file = fopen(fileName, "rb+");
     //now update the SM_FileHandle with the information
     //first the name of the file
+
     fHandle -> fileName = fileName;
+    printf("File Name in openPagae: %s\n", fHandle->fileName);
     
     //now get he number of pages in the file, to this it looks for the end of the file 
     //and divides it by the size of the page.
@@ -48,7 +50,7 @@ extern RC openPageFile (char *fileName, SM_FileHandle *fHandle){
     fseek(file, 0, SEEK_END);
     
     //ftell return the distance btw where is the pointer at the moment and 
-    //the beggining of the element
+    //the beggining of the element. It is storage in fileSize
     long fileSize = ftell(file);
 
     //if there is a error, fileSize returns -1
@@ -63,20 +65,33 @@ extern RC openPageFile (char *fileName, SM_FileHandle *fHandle){
     fHandle -> curPagePos=0;
 
     // Store the file pointer in mgmtInfo for further operations
-    fHandle -> mgmtInfo= fileName;
+    fHandle -> mgmtInfo= file;
     
     return RC_OK;
     }
 
 
 extern RC closePageFile (SM_FileHandle *fHandle){
+    //printf(fHandle -> fileName);
+    //close the file with fclose method
+    //fclose requiered a FILE pointer
+    if (fclose((FILE*)fHandle->mgmtInfo) != 0) {
+        return RC_FILE_NOT_FOUND;
+    }
     
-    //fclose(fHandle);
+    //made null all the pointrs inside of the datastructure 
+    fHandle -> fileName = NULL;
+    fHandle -> mgmtInfo = NULL;
+
+
     return RC_OK;
     }
 extern RC destroyPageFile (char *fileName){
-
-    remove(fileName); 
+    
+    //remove the file and return and error if the method doesn't work
+    if(remove(fileName)==-1){
+        return RC_FILE_NOT_FOUND;
+    } 
 
     return RC_OK;
     }
