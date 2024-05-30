@@ -40,13 +40,13 @@ extern RC openPageFile (char *fileName, SM_FileHandle *fHandle){
     //first the name of the file
 
     fHandle -> fileName = fileName;
-    printf("File Name in openPagae: %s\n", fHandle->fileName);
+    printf("fileName in openPage: %s\n", fHandle->fileName);
     
     //now get he number of pages in the file, to this it looks for the end of the file 
     //and divides it by the size of the page.
 
     //fseek get the pointer of fileName and change the direction to the 
-    //direction of memeroy where the file ends
+    //direction of memory where the file ends.
     fseek(file, 0, SEEK_END);
     
     //ftell return the distance btw where is the pointer at the moment and 
@@ -72,7 +72,7 @@ extern RC openPageFile (char *fileName, SM_FileHandle *fHandle){
 
 
 extern RC closePageFile (SM_FileHandle *fHandle){
-    //printf(fHandle -> fileName);
+    
     //close the file with fclose method
     //fclose requiered a FILE pointer
     if (fclose((FILE*)fHandle->mgmtInfo) != 0) {
@@ -97,16 +97,59 @@ extern RC destroyPageFile (char *fileName){
     }
 
 /* reading blocks from disc */
-extern RC readBlock (int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage){return RC_OK;}
+extern RC readBlock (int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage){
+    return RC_OK;
+    
+    }
 extern int getBlockPos (SM_FileHandle *fHandle){return RC_OK;}
-extern RC readFirstBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){return RC_OK;}
+
+extern RC readFirstBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){
+    
+    //get the pointer from the metadata 
+    FILE* file = (FILE*)fHandle -> mgmtInfo; 
+    
+    // Seek to the beginning of the file
+    if (fseek(file, 0, SEEK_SET) != 0) {
+        return RC_FILE_NOT_FOUND; // fseek failed to set position to the beginning
+    }
+
+    //read the file and copy the elements top 
+    fread(memPage,PAGE_SIZE,1, file);
+    
+
+
+    return RC_OK;
+}
 extern RC readPreviousBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){return RC_OK;}
 extern RC readCurrentBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){return RC_OK;}
 extern RC readNextBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){return RC_OK;}
 extern RC readLastBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){return RC_OK;}
 
 /* writing blocks to a page file */
-extern RC writeBlock (int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage){return RC_OK;}
+extern RC writeBlock (int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage){
+    
+    //get the file pointer that was stored in mgmtInfo
+    FILE *file = (FILE*)fHandle -> mgmtInfo;
+    
+    //find the position of the page that have to be modified
+    int seekResult = fseek(file, PAGE_SIZE*pageNum,SEEK_SET);
+    if (seekResult != 0) {
+        return RC_WRITE_FAILED;  // fseek failed, really useful to debug
+    }
+    //with the position that have to be modified, modfied it, the information is in memPage
+    size_t writeResult = fwrite(memPage,sizeof(char) ,PAGE_SIZE, file); 
+    if (writeResult < PAGE_SIZE) {
+        return RC_WRITE_FAILED;  // fwrite did not write the expected amount of data
+    }
+    
+    //update the metadata with the 
+    fHandle -> curPagePos = pageNum;
+    
+    //delete the pointer
+    file = NULL; 
+    
+    return RC_OK;
+}
 extern RC writeCurrentBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){return RC_OK;}
 extern RC appendEmptyBlock (SM_FileHandle *fHandle){return RC_OK;}
 extern RC ensureCapacity (int numberOfPages, SM_FileHandle *fHandle){return RC_OK;}

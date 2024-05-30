@@ -23,9 +23,7 @@ main (void)
 {
   testName = "";
   
-  initStorageManager();
-
- 
+  initStorageManager(); 
   testCreateOpenClose();
   testSinglePageContent();
 
@@ -54,7 +52,7 @@ testCreateOpenClose(void)
   TEST_CHECK(destroyPageFile (TESTPF));
 
   // after destruction trying to open the file should cause an error
-  //ASSERT_TRUE((openPageFile(TESTPF, &fh) != RC_OK), "opening non-existing file should return an error.");
+  ASSERT_TRUE((openPageFile(TESTPF, &fh) != RC_OK), "opening non-existing file should return an error.");
 
   TEST_DONE();
 }
@@ -75,28 +73,39 @@ testSinglePageContent(void)
   TEST_CHECK(createPageFile (TESTPF));
   TEST_CHECK(openPageFile (TESTPF, &fh));
   printf("created and opened file\n");
-  
+   
+
   // read first page into handle
   TEST_CHECK(readFirstBlock (&fh, ph));
+  printf("read succesfully\n");
+  
   // the page should be empty (zero bytes)
-  for (i=0; i < PAGE_SIZE; i++)
+  for (i=0; i < PAGE_SIZE; i++){
+    printf("%c esto es lo que guardamos\n",ph[i]);
     ASSERT_TRUE((ph[i] == 0), "expected zero byte in first page of freshly initialized page");
+  }
   printf("first block was empty\n");
-    
+  
   // change ph to be a string and write that one to disk
   for (i=0; i < PAGE_SIZE; i++)
     ph[i] = (i % 10) + '0';
   TEST_CHECK(writeBlock (0, &fh, ph));
   printf("writing first block\n");
-
+   
   // read back the page containing the string and check that it is correct
   TEST_CHECK(readFirstBlock (&fh, ph));
-  for (i=0; i < PAGE_SIZE; i++)
+  for (i=0; i < PAGE_SIZE; i++){
     ASSERT_TRUE((ph[i] == (i % 10) + '0'), "character in page read from disk is the one we expected.");
+    //printf("%c esto es lo que guardamos\n",ph[i]);
+    //printf("%c esto es el numero que nos deberia dar\n",(i % 10) + '0');
+  }
   printf("reading first block\n");
-
+  
+  TEST_CHECK(closePageFile (&fh)); // added to minimize the number of dataleaks
   // destroy new page file
   TEST_CHECK(destroyPageFile (TESTPF));  
-  
+  free(ph); // free memory of the test 
   TEST_DONE();
 }
+
+
