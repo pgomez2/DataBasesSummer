@@ -30,10 +30,10 @@ dberror.o: dberror.c dberror.h
 clean: 
 	$(RM) test1 test2 *.o *~
 
-test1:
+run_test1:
 	./test1
 
-test2:
+run_test2:
 	./test2
 
 valgrind_test1:

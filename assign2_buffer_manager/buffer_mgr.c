@@ -1,11 +1,33 @@
 #include "buffer_mgr.h"
 #include "storage_mgr.h"
 
+// initBufferPool(bm, "testbuffer.bin", 3, RS_FIFO, NULL)
 
 // Buffer Manager Interface Pool Handling
 RC initBufferPool(BM_BufferPool *const bm, const char *const pageFileName, 
 		const int numPages, ReplacementStrategy strategy,
-		void *stratData){return RC_OK;}
+		void *stratData){
+			
+			//saving PageFileName
+			bm->pageFile;
+			//saving the number of pages
+			bm->numPages = numPages;
+			//saving the strategy
+			bm->strategy;
+
+			
+			
+			
+			
+
+			
+
+			printf("initBufferPool sucessfully");
+			return RC_OK;
+			}
+
+
+
 RC shutdownBufferPool(BM_BufferPool *const bm){return RC_OK;}
 RC forceFlushPool(BM_BufferPool *const bm){return RC_OK;}
 

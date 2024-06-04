@@ -98,6 +98,13 @@ extern RC destroyPageFile (char *fileName){
 
 /* reading blocks from disc */
 extern RC readBlock (int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage){
+    FILE* file = (FILE*)fHandle -> mgmtInfo;
+
+        if (fseek(file, 0, SEEK_SET) != 0) {
+        return RC_FILE_NOT_FOUND; // fseek failed to set position to the beginning
+    }
+
+    
     return RC_OK;
     
     }
@@ -120,7 +127,10 @@ extern RC readFirstBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){
 
     return RC_OK;
 }
-extern RC readPreviousBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){return RC_OK;}
+extern RC readPreviousBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){return 
+
+RC_OK;
+}
 extern RC readCurrentBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){return RC_OK;}
 extern RC readNextBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){return RC_OK;}
 extern RC readLastBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){return RC_OK;}
