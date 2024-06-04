@@ -98,13 +98,22 @@ extern RC destroyPageFile (char *fileName){
 
 /* reading blocks from disc */
 extern RC readBlock (int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage){
+    
+    // Inicializate a File pointer with the direction of the file is gonna be use it.
     FILE* file = (FILE*)fHandle -> mgmtInfo;
 
-        if (fseek(file, 0, SEEK_SET) != 0) {
+    //with fseek get the direction of the pointer, the -1 is because C start to count in zero, so the first block is 0
+    if (fseek(file, PAGE_SIZE*(pageNum-1), SEEK_SET) != 0) {
         return RC_FILE_NOT_FOUND; // fseek failed to set position to the beginning
     }
 
     
+    //read the file and copy the elements top, the info is storage in the
+    //memory direction of memPage 
+    fread(memPage,PAGE_SIZE,1, file);
+    
+
+
     return RC_OK;
     
     }
@@ -120,19 +129,70 @@ extern RC readFirstBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){
         return RC_FILE_NOT_FOUND; // fseek failed to set position to the beginning
     }
 
-    //read the file and copy the elements top 
+    //read the file and copy the elements top, the info is storage in the
+    //memory direction of memPage 
     fread(memPage,PAGE_SIZE,1, file);
     
 
 
     return RC_OK;
 }
-extern RC readPreviousBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){return 
+extern RC readPreviousBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){
+        
+        
+    // Inicializate a File pointer with the direction of the file is gonna be use it.
+    FILE* file = (FILE*)fHandle -> mgmtInfo;
 
-RC_OK;
+    //with fseek get the direction of the pointer, the -2 is because C start to count in zero, so the first block is 0
+    if (fseek(file, PAGE_SIZE*((fHandle->curPagePos)-2), SEEK_SET) != 0) {
+        return RC_FILE_NOT_FOUND; // fseek failed to set position to the beginning
+    }
+
+    
+    //read the file and copy the elements top, the info is storage in the
+    //memory direction of memPage 
+    fread(memPage,PAGE_SIZE,1, file);
+    
+    
+    
+    return RC_OK;
 }
-extern RC readCurrentBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){return RC_OK;}
-extern RC readNextBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){return RC_OK;}
+extern RC readCurrentBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){
+    // Inicializate a File pointer with the direction of the file is gonna be use it.
+    FILE* file = (FILE*)fHandle -> mgmtInfo;
+
+    //with fseek get the direction of the pointer, the -1 is because C start to count in zero, so the first block is 0
+    if (fseek(file, PAGE_SIZE*((fHandle->curPagePos)-1), SEEK_SET) != 0) {
+        return RC_FILE_NOT_FOUND; // fseek failed to set position to the beginning
+    }
+
+    
+    //read the file and copy the elements top, the info is storage in the
+    //memory direction of memPage 
+    fread(memPage,PAGE_SIZE,1, file);
+    
+    
+    return RC_OK;
+    }
+extern RC readNextBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){
+        
+        
+    // Inicializate a File pointer with the direction of the file is gonna be use it.
+    FILE* file = (FILE*)fHandle -> mgmtInfo;
+
+    //with fseek get the direction of the pointer, so the first block is 0 
+    if (fseek(file, PAGE_SIZE*((fHandle->curPagePos)), SEEK_SET) != 0) {
+        return RC_FILE_NOT_FOUND; // fseek failed to set position to the beginning
+    }
+
+    
+    //read the file and copy the elements top, the info is storage in the
+    //memory direction of memPage 
+    fread(memPage,PAGE_SIZE,1, file);
+    
+    
+    return RC_OK;
+}
 extern RC readLastBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){return RC_OK;}
 
 /* writing blocks to a page file */
