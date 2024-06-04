@@ -270,5 +270,51 @@ extern RC writeCurrentBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){
     
     return RC_OK;
     }
-extern RC appendEmptyBlock (SM_FileHandle *fHandle){return RC_OK;}
-extern RC ensureCapacity (int numberOfPages, SM_FileHandle *fHandle){return RC_OK;}
+extern RC appendEmptyBlock (SM_FileHandle *fHandle){
+    
+    //reserve some space in the memory with zeroes
+    char *pageWithZeros  = (char*)calloc(PAGE_SIZE, sizeof(char));
+
+    //go the final part of the file 
+    fseek(fHandle->mgmtInfo, 0, SEEK_END);
+
+    //add the page (block) with zeros at the end of the file
+    fwrite(pageWithZeros, sizeof(char), PAGE_SIZE, fHandle->mgmtInfo);
+
+    //liberate the memory used it for the zeros
+    free(pageWithZeros);
+
+    // Change the number of pages of the file in the metadata
+    fHandle->totalNumPages ++;
+
+
+    return RC_OK;
+    }
+extern RC ensureCapacity (int numberOfPages, SM_FileHandle *fHandle){
+    
+    // check if there is enough vapacity, if there are just skip the if
+    if(numberOfPages> fHandle->totalNumPages){
+    
+    // create the number of blocks with zeros to have enough pages
+    char *pageWithZeros  = (char*)calloc(PAGE_SIZE*(numberOfPages-fHandle->totalNumPages) , sizeof(char));
+
+    //go the final part of the file 
+    fseek(fHandle->mgmtInfo, 0, SEEK_END);
+
+    //add the page(s) with zeros at the end of the file
+    fwrite(pageWithZeros, sizeof(char), PAGE_SIZE, fHandle->mgmtInfo);
+
+    //liberate the memory used it for the zeros
+    free(pageWithZeros);
+
+    // Change the number of pages of the file in the metadata
+    fHandle->totalNumPages+(numberOfPages-fHandle->totalNumPages);
+    
+    //return ok
+
+    return RC_OK;
+    }
+    
+    //maybe it was not necesarry to operate, so give back the zero.
+    return RC_OK;
+    }
