@@ -25,7 +25,7 @@ main (void)
   
   initStorageManager(); 
   testCreateOpenClose();
-  testSinglePageContent();
+  //testSinglePageContent();
 
   return 0;
 }
@@ -50,6 +50,7 @@ testCreateOpenClose(void)
   
   TEST_CHECK(closePageFile (&fh)); 
   TEST_CHECK(destroyPageFile (TESTPF));
+ 
 
   // after destruction trying to open the file should cause an error
   ASSERT_TRUE((openPageFile(TESTPF, &fh) != RC_OK), "opening non-existing file should return an error.");

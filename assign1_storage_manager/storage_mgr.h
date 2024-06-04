@@ -26,13 +26,13 @@ extern RC closePageFile (SM_FileHandle *fHandle); //made
 extern RC destroyPageFile (char *fileName); //made 
 
 /* reading blocks from disc */
-extern RC readBlock (int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage);
-extern int getBlockPos (SM_FileHandle *fHandle);
+extern RC readBlock (int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage); //made
+extern int getBlockPos (SM_FileHandle *fHandle); //made
 extern RC readFirstBlock (SM_FileHandle *fHandle, SM_PageHandle memPage); //made
-extern RC readPreviousBlock (SM_FileHandle *fHandle, SM_PageHandle memPage);
-extern RC readCurrentBlock (SM_FileHandle *fHandle, SM_PageHandle memPage);
-extern RC readNextBlock (SM_FileHandle *fHandle, SM_PageHandle memPage);
-extern RC readLastBlock (SM_FileHandle *fHandle, SM_PageHandle memPage);
+extern RC readPreviousBlock (SM_FileHandle *fHandle, SM_PageHandle memPage); //made
+extern RC readCurrentBlock (SM_FileHandle *fHandle, SM_PageHandle memPage); //made
+extern RC readNextBlock (SM_FileHandle *fHandle, SM_PageHandle memPage); //made
+extern RC readLastBlock (SM_FileHandle *fHandle, SM_PageHandle memPage); //made
 
 /* writing blocks to a page file */
 extern RC writeBlock (int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage); //made 
