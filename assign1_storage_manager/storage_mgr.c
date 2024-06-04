@@ -292,11 +292,14 @@ extern RC appendEmptyBlock (SM_FileHandle *fHandle){
     }
 extern RC ensureCapacity (int numberOfPages, SM_FileHandle *fHandle){
     
+    // Calculate the number of pages to add
+    int pagesToAdd = numberOfPages - fHandle->totalNumPages;
+
     // check if there is enough vapacity, if there are just skip the if
-    if(numberOfPages> fHandle->totalNumPages){
+    if(pagesToAdd>0){
     
     // create the number of blocks with zeros to have enough pages
-    char *pageWithZeros  = (char*)calloc(PAGE_SIZE*(numberOfPages-fHandle->totalNumPages) , sizeof(char));
+    char *pageWithZeros  = (char*)calloc(PAGE_SIZE*(pagesToAdd) , sizeof(char));
 
     //go the final part of the file 
     fseek(fHandle->mgmtInfo, 0, SEEK_END);
@@ -308,13 +311,13 @@ extern RC ensureCapacity (int numberOfPages, SM_FileHandle *fHandle){
     free(pageWithZeros);
 
     // Change the number of pages of the file in the metadata
-    fHandle->totalNumPages+(numberOfPages-fHandle->totalNumPages);
+    fHandle->totalNumPages += pagesToAdd;
     
     //return ok
 
     return RC_OK;
     }
     
-    //maybe it was not necesarry to operate, so give back the zero.
+    //maybe it was not necesarry to operate, so give back the OK
     return RC_OK;
     }
