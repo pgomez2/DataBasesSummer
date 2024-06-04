@@ -31,12 +31,14 @@ extern RC createPageFile (char *fileName){
     }
 extern RC openPageFile (char *fileName, SM_FileHandle *fHandle){
     
-    //Check if the file and the structure of metada exist, if doesn't exisest return RC_FILE_NOT_FOUND
-    // Check a pointer in the metadata
-    if (fileName == NULL || fHandle->mgmtInfo == NULL){
+    // open the file and storage the location in file
+    FILE *file = fopen(fileName, "rb+");
+    //Check if the file exist, if doesn't exisest return RC_FILE_NOT_FOUND
+    if( file == NULL){
+       
         return RC_FILE_NOT_FOUND;
     }
-    FILE *file = fopen(fileName, "rb+");
+   
     //now update the SM_FileHandle with the information
     //first the name of the file
 
