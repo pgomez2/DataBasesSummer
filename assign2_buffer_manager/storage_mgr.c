@@ -31,11 +31,14 @@ extern RC createPageFile (char *fileName){
     }
 extern RC openPageFile (char *fileName, SM_FileHandle *fHandle){
     
-    //Check if the file exists, if doesn't exisest return RC_FILE_NOT_FOUND
-    if (fileName == NULL){
+    // open the file and storage the location in file
+    FILE *file = fopen(fileName, "rb+");
+    //Check if the file exist, if doesn't exisest return RC_FILE_NOT_FOUND
+    if( file == NULL){
+       
         return RC_FILE_NOT_FOUND;
     }
-    FILE *file = fopen(fileName, "rb+");
+   
     //now update the SM_FileHandle with the information
     //first the name of the file
 
@@ -82,6 +85,7 @@ extern RC closePageFile (SM_FileHandle *fHandle){
     //made null all the pointrs inside of the datastructure 
     fHandle -> fileName = NULL;
     fHandle -> mgmtInfo = NULL;
+    fHandle = NULL;
 
 
     return RC_OK;
@@ -98,10 +102,36 @@ extern RC destroyPageFile (char *fileName){
 
 /* reading blocks from disc */
 extern RC readBlock (int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage){
+    
+    // Inicializate a File pointer with the direction of the file is gonna be use it.
+    FILE* file = (FILE*)fHandle -> mgmtInfo;
+
+    //with fseek get the direction of the pointer, the -1 is because C start to count in zero, so the first block is 0
+    if (fseek(file, PAGE_SIZE*(pageNum-1), SEEK_SET) != 0) {
+        return RC_FILE_NOT_FOUND; // fseek failed to set position to the beginning
+    }
+
+    
+    //read the file and copy the elements top, the info is storage in the
+    //memory direction of memPage 
+    fread(memPage,PAGE_SIZE,1, file);
+    
+
+
     return RC_OK;
     
     }
-extern int getBlockPos (SM_FileHandle *fHandle){return RC_OK;}
+extern int getBlockPos (SM_FileHandle *fHandle){
+    // Inicializate a File pointer with the direction of the file is gonna be use it.
+    FILE* file = (FILE*)fHandle -> mgmtInfo;
+
+    //with fseek get the direction of the pointer, so the first block is 0 
+    if (fseek(file, PAGE_SIZE*((fHandle->curPagePos)-1), SEEK_SET) != 0) {
+        return RC_FILE_NOT_FOUND; // fseek failed to set position to the beginning
+    }
+    
+    
+    return RC_OK;}
 
 extern RC readFirstBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){
     
@@ -113,17 +143,86 @@ extern RC readFirstBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){
         return RC_FILE_NOT_FOUND; // fseek failed to set position to the beginning
     }
 
-    //read the file and copy the elements top 
+    //read the file and copy the elements top, the info is storage in the
+    //memory direction of memPage 
     fread(memPage,PAGE_SIZE,1, file);
     
 
 
     return RC_OK;
 }
-extern RC readPreviousBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){return RC_OK;}
-extern RC readCurrentBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){return RC_OK;}
-extern RC readNextBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){return RC_OK;}
-extern RC readLastBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){return RC_OK;}
+extern RC readPreviousBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){        
+    // Inicializate a File pointer with the direction of the file is gonna be use it.
+    FILE* file = (FILE*)fHandle -> mgmtInfo;
+
+    //with fseek get the direction of the pointer, the -2 is because C start to count in zero, so the first block is 0
+    if (fseek(file, PAGE_SIZE*((fHandle->curPagePos)-2), SEEK_SET) != 0) {
+        return RC_FILE_NOT_FOUND; // fseek failed to set position to the beginning
+    }
+
+    
+    //read the file and copy the elements top, the info is storage in the
+    //memory direction of memPage 
+    fread(memPage,PAGE_SIZE,1, file);
+    
+    
+    
+    return RC_OK;
+}
+extern RC readCurrentBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){
+    // Inicializate a File pointer with the direction of the file is gonna be use it.
+    FILE* file = (FILE*)fHandle -> mgmtInfo;
+
+    //with fseek get the direction of the pointer, the -1 is because C start to count in zero, so the first block is 0
+    if (fseek(file, PAGE_SIZE*((fHandle->curPagePos)-1), SEEK_SET) != 0) {
+        return RC_FILE_NOT_FOUND; // fseek failed to set position to the beginning
+    }
+
+    
+    //read the file and copy the elements top, the info is storage in the
+    //memory direction of memPage 
+    fread(memPage,PAGE_SIZE,1, file);
+    
+    
+    return RC_OK;
+    }
+extern RC readNextBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){
+    // Inicializate a File pointer with the direction of the file is gonna be use it.
+    FILE* file = (FILE*)fHandle -> mgmtInfo;
+
+    //with fseek get the direction of the pointer, so the first block is 0 
+    if (fseek(file, PAGE_SIZE*((fHandle->curPagePos)), SEEK_SET) != 0) {
+        return RC_FILE_NOT_FOUND; // fseek failed to set position to the beginning
+    }
+
+    
+    //read the file and copy the elements top, the info is storage in the
+    //memory direction of memPage 
+    fread(memPage,PAGE_SIZE,1, file);
+    
+    
+    return RC_OK;
+}
+extern RC readLastBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){
+            
+        
+    // Inicializate a File pointer with the direction of the file is gonna be use it.
+    FILE* file = (FILE*)fHandle -> mgmtInfo;
+
+    //with fseek get the direction of the pointer, so the first block is 0 
+    if (fseek(file, -PAGE_SIZE, SEEK_END) != 0) {
+        return RC_FILE_NOT_FOUND; // fseek failed to set position to the beginning
+    }
+
+    
+    //read the file and copy the elements top, the info is storage in the
+    //memory direction of memPage 
+    fread(memPage,PAGE_SIZE,1, file);
+    
+    
+    
+    return RC_OK;
+    }
 
 /* writing blocks to a page file */
 extern RC writeBlock (int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage){
@@ -150,6 +249,75 @@ extern RC writeBlock (int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage
     
     return RC_OK;
 }
-extern RC writeCurrentBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){return RC_OK;}
-extern RC appendEmptyBlock (SM_FileHandle *fHandle){return RC_OK;}
-extern RC ensureCapacity (int numberOfPages, SM_FileHandle *fHandle){return RC_OK;}
+extern RC writeCurrentBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){
+            
+        
+    // Inicializate a File pointer with the direction of the file is gonna be use it.
+    FILE* file = (FILE*)fHandle -> mgmtInfo;
+
+    //with fseek get the direction of the pointer, so the first block is 0 
+    if (fseek(file, PAGE_SIZE*((fHandle->curPagePos)-1), SEEK_SET) != 0) {
+        return RC_FILE_NOT_FOUND; // fseek failed to set position to the beginning
+    }
+
+    
+    //with the position that have to be modified, modfied it, the information is in memPage
+    size_t writeResult = fwrite(memPage,sizeof(char) ,PAGE_SIZE, file); 
+    if (writeResult < PAGE_SIZE) {
+        return RC_WRITE_FAILED;  // fwrite did not write the expected amount of data
+    }
+    
+    
+    return RC_OK;
+    }
+extern RC appendEmptyBlock (SM_FileHandle *fHandle){
+    
+    //reserve some space in the memory with zeroes
+    char *pageWithZeros  = (char*)calloc(PAGE_SIZE, sizeof(char));
+
+    //go the final part of the file 
+    fseek(fHandle->mgmtInfo, 0, SEEK_END);
+
+    //add the page (block) with zeros at the end of the file
+    fwrite(pageWithZeros, sizeof(char), PAGE_SIZE, fHandle->mgmtInfo);
+
+    //liberate the memory used it for the zeros
+    free(pageWithZeros);
+
+    // Change the number of pages of the file in the metadata
+    fHandle->totalNumPages ++;
+
+
+    return RC_OK;
+    }
+extern RC ensureCapacity (int numberOfPages, SM_FileHandle *fHandle){
+    
+    // Calculate the number of pages to add
+    int pagesToAdd = numberOfPages - fHandle->totalNumPages;
+
+    // check if there is enough vapacity, if there are just skip the if
+    if(pagesToAdd>0){
+    
+    // create the number of blocks with zeros to have enough pages
+    char *pageWithZeros  = (char*)calloc(PAGE_SIZE*(pagesToAdd) , sizeof(char));
+
+    //go the final part of the file 
+    fseek(fHandle->mgmtInfo, 0, SEEK_END);
+
+    //add the page(s) with zeros at the end of the file
+    fwrite(pageWithZeros, sizeof(char), PAGE_SIZE, fHandle->mgmtInfo);
+
+    //liberate the memory used it for the zeros
+    free(pageWithZeros);
+
+    // Change the number of pages of the file in the metadata
+    fHandle->totalNumPages += pagesToAdd;
+    
+    //return ok
+
+    return RC_OK;
+    }
+    
+    //maybe it was not necesarry to operate, so give back the OK
+    return RC_OK;
+    }
