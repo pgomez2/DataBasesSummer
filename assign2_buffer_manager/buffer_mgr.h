@@ -21,16 +21,24 @@ typedef int PageNumber;
 #define NO_PAGE -1
 
 typedef struct BM_BufferPool {
-	char *pageFile;
-	int numPages;
-	ReplacementStrategy strategy;
+	char *pageFile; // pointer to the page file 
+	int numPages; //number of pages of the buffer can hold at the same time 
+	ReplacementStrategy strategy; //strategy to change pages in the buffer pool
 	void *mgmtData; // use this one to store the bookkeeping info your buffer
 	// manager needs for a buffer pool
+	int readIO; //number of times a page is read 
+	int writeIO; // number of times a page is writed 
+	int *orderBuffer; // vector to see the order of the pages in the buffer 
+
 } BM_BufferPool;
 
 typedef struct BM_PageHandle {
-	PageNumber pageNum;
-	char *data;
+	PageNumber pageNum; // position of page located inside of the page file 
+	char *data; //pointer to the page inside of the memory 
+	PageNumber pageNumBuffer; // position of the page inside of the buffer 
+	char *dataBuffer; // pointer to the page inside of the Buffer
+	bool isDirty; // variable to check if the page is dirty 
+	int fixCount; // variable to check the number of clients are calling for the page
 } BM_PageHandle;
 
 // convenience macros

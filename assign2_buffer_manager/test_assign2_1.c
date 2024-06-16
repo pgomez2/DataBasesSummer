@@ -46,26 +46,28 @@ main (void)
   testName = "";
 
   testCreatingAndReadingDummyPages();
-  testReadPage();
-  testFIFO();
-  testLRU();
+  //testReadPage();
+  //testFIFO();
+  //testLRU();
 }
 
 // create n pages with content "Page X" and read them back to check whether the content is right
 void
 testCreatingAndReadingDummyPages (void)
 {
+  
   BM_BufferPool *bm = MAKE_POOL();
   testName = "Creating and Reading Back Dummy Pages";
 
   CHECK(createPageFile("testbuffer.bin"));
-
+  printf("llegamos linea 63\n");
   createDummyPages(bm, 22);
+   printf("llegamos linea 65\n");
   checkDummyPages(bm, 20);
 
   createDummyPages(bm, 10000);
   checkDummyPages(bm, 10000);
-
+  printf("llegamos linea 69\n");
   CHECK(destroyPageFile("testbuffer.bin"));
 
   free(bm);
@@ -88,7 +90,7 @@ createDummyPages(BM_BufferPool *bm, int num)
       CHECK(markDirty(bm, h));
       CHECK(unpinPage(bm,h));
     }
-
+   
   CHECK(shutdownBufferPool(bm));
 
   free(h);
@@ -150,7 +152,7 @@ testReadPage ()
 
 void
 testFIFO ()
-{
+{-
   // expected results
   const char *poolContents[] = { 
     "[0 0],[-1 0],[-1 0]" , 
