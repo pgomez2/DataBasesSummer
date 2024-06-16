@@ -1,5 +1,6 @@
 #ifndef BUFFER_MANAGER_H
 #define BUFFER_MANAGER_H
+#include "storage_mgr.h"
 
 // Include return codes and methods for logging errors
 #include "dberror.h"
@@ -29,6 +30,8 @@ typedef struct BM_BufferPool {
 	int readIO; //number of times a page is read 
 	int writeIO; // number of times a page is writed 
 	int *orderBuffer; // vector to see the order of the pages in the buffer 
+	SM_FileHandle fh; //use the previous datastructures to be able to use the previous functions  
+	SM_PageHandle ph;
 
 } BM_BufferPool;
 

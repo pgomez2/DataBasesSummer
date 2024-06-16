@@ -38,7 +38,8 @@ extern RC openPageFile (char *fileName, SM_FileHandle *fHandle){
        
         return RC_FILE_NOT_FOUND;
     }
-   
+    
+    
     //now update the SM_FileHandle with the information
     //first the name of the file
 
@@ -116,10 +117,7 @@ extern RC readBlock (int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage)
     //memory direction of memPage 
     fread(memPage,PAGE_SIZE,1, file);
     
-
-
-    return RC_OK;
-    
+    return RC_OK;    
     }
 extern int getBlockPos (SM_FileHandle *fHandle){
     // Inicializate a File pointer with the direction of the file is gonna be use it.
