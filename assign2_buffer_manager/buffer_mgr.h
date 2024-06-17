@@ -32,6 +32,8 @@ typedef struct BM_BufferPool {
 	int *orderBuffer; // vector to see the order of the pages in the buffer 
 	SM_FileHandle fh; //use the previous datastructures to be able to use the previous functions  
 	SM_PageHandle ph;
+	Queue *arrivalOrder; // vector to track the order of arrival of pages
+	LRUCache *usageOrder; // vector to track the order of usage of pages
 
 } BM_BufferPool;
 
@@ -43,6 +45,31 @@ typedef struct BM_PageHandle {
 	bool isDirty; // variable to check if the page is dirty 
 	int fixCount; // variable to check the number of clients are calling for the page
 } BM_PageHandle;
+
+typedef struct LRUNode {
+    int pageNum;
+    struct LRUNode *prev, *next;
+} LRUNode;
+
+typedef struct LRUCache {
+    int capacity, count;
+    LRUNode *head, *tail;
+    LRUNode** hashTable; // to quickly access nodes
+} LRUCache;
+
+
+typedef struct Node {
+    int pageNum;
+    struct Node* next;
+} Node;
+
+typedef struct Queue {
+    Node *front, *rear;
+    int size;
+} Queue;
+
+
+
 
 // convenience macros
 #define MAKE_POOL()					\
@@ -71,5 +98,6 @@ bool *getDirtyFlags (BM_BufferPool *const bm);
 int *getFixCounts (BM_BufferPool *const bm);
 int getNumReadIO (BM_BufferPool *const bm);
 int getNumWriteIO (BM_BufferPool *const bm);
+
 
 #endif

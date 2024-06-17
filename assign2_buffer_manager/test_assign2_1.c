@@ -87,9 +87,9 @@ createDummyPages(BM_BufferPool *bm, int num)
   for (i = 0; i < num; i++)
     {
       CHECK(pinPage(bm, h, i));
-      //sprintf(h->data, "%s-%i", "Page", h->pageNum);
-      //CHECK(markDirty(bm, h));
-      //CHECK(unpinPage(bm,h));
+      sprintf(h->data, "%s-%i", "Page", h->pageNum);
+     // CHECK(markDirty(bm, h));
+     // CHECK(unpinPage(bm,h));
     }
    
   //CHECK(shutdownBufferPool(bm));
