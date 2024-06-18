@@ -98,32 +98,116 @@ RC unpinPage(BM_BufferPool *const bm, BM_PageHandle *const page) {
 
 RC forcePage (BM_BufferPool *const bm, BM_PageHandle *const page){return RC_OK;}
 
-RC pinPage(BM_BufferPool *const bm, BM_PageHandle *const page, const PageNumber pageNum) {
+#include "buffer_mgr.h"
+#include "storage_mgr.h"
+#include <stdlib.h>
+#include <string.h>
 
-    // 1. Verificar si la página ya está en el buffer pool
+// Helper function to find a page in the buffer pool
+int findPageInBufferPool(BM_BufferPool *const bm, PageNumber pageNum) {
     for (int i = 0; i < bm->numPages; i++) {
         if (bm->orderBuffer[i] == pageNum) {
-            // Página encontrada en el buffer pool
-            page->pageNum = pageNum;
-            page->data = bm->mgmtData + (i * PAGE_SIZE);
-            page->isDirty = false; // Puede ajustarse según tu lógica
-            page->fixCount++; // Incrementar el contador de fijación
-            return RC_OK;
+            return i;
         }
     }
+    return -1;
+}
 
-    // 2. Si la página no está en el buffer, cargarla desde el archivo
-    // Encontrar una posición libre en el buffer pool
-    int freePage = -1;
+// Helper function to find a free frame or a victim frame
+int findFreeOrVictimFrame(BM_BufferPool *const bm) {
+    // Check for a free frame
     for (int i = 0; i < bm->numPages; i++) {
         if (bm->orderBuffer[i] == -1) {
-            freePage = i;
-            break;
+            return i;
         }
     }
 
+    // No free frame, use replacement strategy to find a victim
+    int victimFrame = -1;
+    switch (bm->strategy) {
+        case RS_FIFO:
+            victimFrame = dequeue(bm->arrivalOrder);
+            break;
+        case RS_LRU:
+            victimFrame = dequeue(bm->usageOrder);
+            break;
+        // Add cases for other strategies if needed
+        default:
+            victimFrame = dequeue(bm->arrivalOrder);
+            break;
+    }
+    return victimFrame;
+}
 
-return RC_OK;
+// Helper function to write a dirty page back to disk
+RC writeDirtyPageToDisk(BM_BufferPool *const bm, int frameIndex) {
+    if (bm->ph[frameIndex].isDirty) {
+        SM_FileHandle fh = bm->fh;
+        SM_PageHandle ph = bm->ph[frameIndex].dataBuffer;
+        if (writeBlock(bm->ph[frameIndex].pageNum, &fh, ph) != RC_OK) {
+            return RC_WRITE_FAILED;
+        }
+        bm->writeIO++;
+        bm->ph[frameIndex].isDirty = false;
+    }
+    return RC_OK;
+}
+
+// Implement the pinPage function
+RC pinPage(BM_BufferPool *const bm, BM_PageHandle *const page, const PageNumber pageNum) {
+    // Check if the page is already in the buffer pool
+    int frameIndex = findPageInBufferPool(bm, pageNum);
+    if (frameIndex != -1) {
+        // Page is already in buffer pool, increment fix count and return
+        bm->ph[frameIndex].fixCount++;
+        page->pageNum = pageNum;
+        page->data = bm->ph[frameIndex].dataBuffer;
+        return RC_OK;
+    }
+
+    // Page is not in buffer pool, find a free frame or a victim frame
+    frameIndex = findFreeOrVictimFrame(bm);
+    if (frameIndex == -1) {
+        return RC_FILE_NOT_FOUND;
+    }
+
+    // If the victim page is dirty, write it back to disk
+    if (bm->orderBuffer[frameIndex] != -1) {
+        if (writeDirtyPageToDisk(bm, frameIndex) != RC_OK) {
+            return RC_WRITE_FAILED;
+        }
+    }
+
+    // Read the requested page into the selected frame
+    SM_FileHandle fh = bm->fh;
+    SM_PageHandle ph = (SM_PageHandle)malloc(PAGE_SIZE);
+    if (readBlock(pageNum, &fh, ph) != RC_OK) {
+        free(ph);
+        return RC_FILE_NOT_FOUND;
+    }
+    bm->readIO++;
+
+    // Update the buffer pool metadata
+    bm->ph[frameIndex].pageNum = pageNum;
+    bm->ph[frameIndex].dataBuffer = ph;
+    bm->ph[frameIndex].fixCount = 1;
+    bm->ph[frameIndex].isDirty = false;
+    bm->orderBuffer[frameIndex] = pageNum;
+
+    // Enqueue the frame in the appropriate queue based on the replacement strategy
+    if (bm->strategy == RS_FIFO) {
+        enqueue(bm->arrivalOrder, frameIndex);
+    } else if (bm->strategy == RS_LRU) {
+        enqueue(bm->usageOrder, frameIndex);
+    }
+
+    // Set the page handle to point to the newly loaded page
+    page->pageNum = pageNum;
+    page->data = ph;
+
+    return RC_OK;
+}
+
 }
 
 

@@ -62,7 +62,7 @@ testCreatingAndReadingDummyPages (void)
 
   CHECK(createPageFile("testbuffer.bin"));
  
-  createDummyPages(bm, 1);
+  createDummyPages(bm, 4);
 
   //checkDummyPages(bm, 20);
 

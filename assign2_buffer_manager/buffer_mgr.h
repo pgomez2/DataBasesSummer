@@ -1,12 +1,37 @@
 #ifndef BUFFER_MANAGER_H
 #define BUFFER_MANAGER_H
 #include "storage_mgr.h"
-
+#include <stdbool.h>
 // Include return codes and methods for logging errors
 #include "dberror.h"
 
 // Include bool DT
 #include "dt.h"
+
+typedef struct LRUNode {
+    int pageNum;
+    struct LRUNode *prev, *next;
+} LRUNode;
+
+typedef struct LRUCache {
+    int capacity, count;
+    LRUNode *head, *tail;
+    LRUNode** hashTable; // to quickly access nodes
+} LRUCache;
+
+
+typedef struct Node {
+    int pageNum;
+    struct Node* next;
+} Node;
+
+typedef struct Queue {
+    Node *front, *rear;
+    int size;
+} Queue;
+
+
+
 
 // Replacement Strategies
 typedef enum ReplacementStrategy {
@@ -46,28 +71,6 @@ typedef struct BM_PageHandle {
 	int fixCount; // variable to check the number of clients are calling for the page
 } BM_PageHandle;
 
-typedef struct LRUNode {
-    int pageNum;
-    struct LRUNode *prev, *next;
-} LRUNode;
-
-typedef struct LRUCache {
-    int capacity, count;
-    LRUNode *head, *tail;
-    LRUNode** hashTable; // to quickly access nodes
-} LRUCache;
-
-
-typedef struct Node {
-    int pageNum;
-    struct Node* next;
-} Node;
-
-typedef struct Queue {
-    Node *front, *rear;
-    int size;
-} Queue;
-
 
 
 
@@ -99,5 +102,14 @@ int *getFixCounts (BM_BufferPool *const bm);
 int getNumReadIO (BM_BufferPool *const bm);
 int getNumWriteIO (BM_BufferPool *const bm);
 
+
+Queue* createQueue();
+void enqueue(Queue* q, int pageNum);
+int dequeue(Queue* q);
+bool isQueueEmpty(Queue* q);
+
+LRUCache* createLRUCache(int capacity);
+void moveToHead(LRUCache* cache, LRUNode* node);
+void addToCache(LRUCache* cache, int pageNum);
 
 #endif
