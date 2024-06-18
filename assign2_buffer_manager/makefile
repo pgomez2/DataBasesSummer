@@ -36,8 +36,5 @@ run_test1:
 run_test2:
 	./test2
 
-valgrind_test1:
+valgrind:
 	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose ./test1
-
-valgrind_test2:
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose ./test2

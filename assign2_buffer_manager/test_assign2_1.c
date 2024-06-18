@@ -47,9 +47,9 @@ main (void)
 
   
   testCreatingAndReadingDummyPages();
-  //testReadPage();
-  //testFIFO();
-  //testLRU();
+  testReadPage();
+  testFIFO();
+  testLRU();
 }
 
 // create n pages with content "Page X" and read them back to check whether the content is right
@@ -62,12 +62,12 @@ testCreatingAndReadingDummyPages (void)
 
   CHECK(createPageFile("testbuffer.bin"));
  
-  createDummyPages(bm, 4);
-
-  //checkDummyPages(bm, 20);
-
-  //createDummyPages(bm, 10000);
-  //checkDummyPages(bm, 10000);
+  createDummyPages(bm,22);
+  printf("arrive at 66 test1\n");
+  checkDummyPages(bm, 20);
+    printf("arrive at 68 test1\n");
+  createDummyPages(bm, 10000);
+  checkDummyPages(bm, 10000);
 
   CHECK(destroyPageFile("testbuffer.bin"));
 
@@ -88,11 +88,11 @@ createDummyPages(BM_BufferPool *bm, int num)
     {
       CHECK(pinPage(bm, h, i));
       sprintf(h->data, "%s-%i", "Page", h->pageNum);
-     // CHECK(markDirty(bm, h));
-     // CHECK(unpinPage(bm,h));
+      CHECK(markDirty(bm, h));
+      CHECK(unpinPage(bm,h));
     }
    
-  //CHECK(shutdownBufferPool(bm));
+  CHECK(shutdownBufferPool(bm));
    
   free(h);
 }
@@ -105,7 +105,7 @@ checkDummyPages(BM_BufferPool *bm, int num)
   char *expected = malloc(sizeof(char) * 512);
 
   CHECK(initBufferPool(bm, "testbuffer.bin", 3, RS_FIFO, NULL));
-
+   printf("arrive at 108 test1\n");
   for (i = 0; i < num; i++)
     {
       CHECK(pinPage(bm, h, i));
