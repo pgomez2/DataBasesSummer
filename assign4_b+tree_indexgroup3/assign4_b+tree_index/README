@@ -1,0 +1,102 @@
+### Assignment 4  
+
+## Group 3
+
+    Pablo Gomez Hidalgo
+    Akula Himavanth
+    Aswin Reddy Manthena
+
+## How to exexute 
+
+1. Execute `make clean` to remove  compiled `.o` files.
+
+2. Run `make` to compile all project files, 
+
+3. Run the files with  including `./test_assign4_1.c`.`./test_expr`.
+
+
+
+## Solution Description ##
+
+The B+ tree implementation focuses on reducing variable consumption and managing memory efficiently, ensuring reserved space is released when practical. It supports various data types, extensively tested, and includes functions from `btree_mgr.h`. This enhances the B+ tree's usefulness, adaptability, and stability.
+
+###  Managing Tables and Records ###
+
+### ``initIndexManager(...)`
+
+--> The index manager is initialized through invocation of the `initStorageManager(...)` function from the Storage Manager. This action sets up the necessary configurations and resources for efficient storage and retrieval within the system. It ensures that the storage layer is properly configured and ready to manage the indexing operations effectively.
+
+### `shutdownIndexManager(...)`
+
+-->  Deallocating all previously assigned resources is a necessary step in the shutdown procedure of the index manager. Furthermore, it releases all memory space that the Index Manager has used, guaranteeing effective memory management. The treeManager data structure pointer is set to NULL in order to accomplish this, and memory space is deallocated using the C function `free()`.
+
+
+###  B+ Tree Index Function ###
+
+### `createBtree(...)`
+
+-->By establishing the TreeManager structure, which manages extra metadata for the tree, this function starts the building of a B+ Tree. After that, it sets up the buffer manager to effectively manage memory. A buffer pool is created using the Buffer Manager to improve data operations inside the B+ Tree. In addition, the B+ Tree structure gains a new page called "idxId" through the use of the Storage Manager. This page is essential for efficiently arranging and storing index data, which improves the B+ Tree's efficiency and scalability.
+
+
+### `openBtree(...)`
+
+--> The function accesses an existing B+ Tree saved in the designated file identified by the "idxId" parameter. It then proceeds to retrieve the TreeManager and initialize the Buffer Pool for subsequent operations.
+
+### `closeBtree(...)`
+
+--> In order to close the B+ Tree, all pages must be marked as dirty and prepared for the Buffer Manager to write them back to disk. In order to facilitate effective resource management, this procedure also involves terminating the buffer pool and freeing up all allotted resources.
+
+
+### `deleteBtree(...)`
+
+--> Storage Manager utilizes the specified file name "idxId" to delete the corresponding page file. This action effectively removes the associated data from storage.
+
+
+###  B+ Tree Key Operationsw ###
+
+### `findKey(...)`
+
+--> The function traverses the B+ Tree to locate the given key. If the key exists within the tree, it retrieves the corresponding Record Identifier (RID) and stores it in the memory address referenced by the "result" parameter. In case the specified key is not found during the search operation, it invokes the `findRecord(...)` method and returns an error code `RC_IM_KEY_NOT_FOUND `.
+
+### `insertKey(...)`
+
+--> When a new entry with the specified key and RID is added, the system first searches the B+ Tree. If the key is found, an error code `RC_IM_KEY_ALREADY_EXISTS` is returned; otherwise, a `NodeData` structure is created to store the RID. If the tree's root is empty, a new B+ Tree is created using `createNewTree(...)` and the entry is added. If the tree already has a root, the system locates the appropriate leaf node for insertion. If there's enough room in the leaf node, the entry is inserted using `insertIntoLeaf(...)`. However, if the leaf node is full, the system calls `insertIntoLeafAfterSplitting(...)` to split the node before inserting the entry.
+
+### `deleteKey(...)`
+
+--> The specified "key" entry is removed from the B+ Tree by invoking the `delete(...)` method, which ensures the maintenance of B+ Tree properties by adjusting the tree structure accordingly.
+
+
+### `openTreeScan(...)`
+
+--> The initialization process involves setting up the scan for traversing entries within the B+ Tree in a sorted order using the provided key. Additionally, it initializes the `ScanManager` structure, which retains supplementary details necessary for executing the scan operation effectively. If the B+ Tree's root node is found to be NULL during initialization, it results in the return of the error code RC_NO_RECORDS_TO_SCAN.
+
+
+### `nextEntry(...)`
+
+--> The function iterates through the entries within the B+ Tree, accessing each entry in turn. It then saves the record details, specifically the Record ID (RID), into the memory location referenced by the "result" parameter. Upon scanning all entries, it returns the error code RC_IM_NO_MORE_ENTRIES.
+
+### `closeTreeScan(...)`
+
+--> Closing the scanning mechanism effectively releases resources that were previously allocated, ensuring efficient resource management and system optimization.
+
+
+
+### Retrieving Details Regarding B+ Tree ###
+
+## `getNumNodes(...)`
+
+--> This function furnishes the total count of nodes within the B+ Tree structure.It extracts this data from the "numNodes" variable housed within the TreeManager structure.
+
+## `getNumEntries(...)`
+
+--> It serves to deliver the count of entries or keys present within the B+ Tree.This information is sourced from the "numEntries" variable contained within the TreeManager structure.
+
+## `getKeyType(...)`
+
+--> The purpose of this function is to determine the data type attributed to the keys stored within the B+ Tree.This detail is obtained from the "keyType" variable within the TreeManager structure.
+
+--> `printTree(...)` : This Debugging Functions Prints the B+ Tree.
+
+-->The B+ tree implementation prioritizes variable consumption reduction and effective memory management, ensuring reserved space is released whenever possible. It supports various data types and has been extensively tested. The index manager is initialized through the Storage Manager, and the B+ Tree Index Function creates a B+ Tree and sets up a buffer manager for efficient data operations. The B+ Tree is opened, closed, and deleted. Key operations include finding keys, inserting keys, and deleting keys. The B+ Tree Scan is initialized, and the next entry is iterated through entries. The B+ Tree's data types are determined from the TreeManager structure. The implementation also includes functions for obtaining data types, such as numNodes, numEntries, and keyType. The B+ Tree is debugged and printed for better stability.
+
